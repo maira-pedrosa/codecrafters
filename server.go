@@ -18,10 +18,27 @@ func main() {
 	 	fmt.Println("Failed to bind to port 4221")
 	 	os.Exit(1)
 	 }
+	defer l.Close()
+	for {
+		connection, err := l.Accept()
+		if err != nil {
+			fmt.Println("Error accepting connection: ", err.Error())
+			os.Exit(1)
+		}
+		handle_connection(connection)
+
+	}
+}
+func handle_connection(connection net.Conn) {
+	defer connection.Close()
+	var buf bytes.Buffer
+	var header = "HTTP/1.1 200 OK\r\n\r\n"
+	buf.Write([]byte(header))
+
+	_, err := connection.Write(buf.Bytes())
 	
-	 _, err = l.Accept()
 	 if err != nil {
-	 	fmt.Println("Error accepting connection: ", err.Error())
+	 	fmt.Println("Failed to write to socket")
 	 	os.Exit(1)
 	 }
 }
